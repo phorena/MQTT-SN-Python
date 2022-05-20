@@ -1,4 +1,7 @@
 """
+*NOTE: numbers 128 and up are buggy the encoding is not correct.
+*NOTE: it added the 0xc2 in between the 2 bytes.
+In the encoding of the u16, some where in the encode() function.
 /*******************************************************************************
  * Copyright (c) 2011, 2013 IBM Corp.
  *
@@ -26,7 +29,7 @@ import time
 
 import MQTTSN,socket, time, MQTTSNinternal, _thread, sys,types
 #, struct
-debug=False
+debug=True
 logging=False
 MQTTSNinternal.debug=False
       
@@ -336,6 +339,7 @@ class Client:
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
         'accepts host,port,duration,cleansession,will flag'
+        print("connect 1000", will)
 
         self.host = host
         self.port = port
@@ -351,8 +355,19 @@ class Client:
         connect.ClientId = self.clientid
         connect.Flags.CleanSession = self.cleansession
         connect.Duration = self.duration
-        print(connect)
+        print("connect 1000", will)
         connect.Flags.Will=will
+        print(connect)
+        print("length of connect pack=",len(connect.pack()))
+        print("length of connect encode=",len(connect.pack().encode()))
+        buffer = connect.pack()
+        res = ":".join("{:02x}".format(ord(i)) for i in buffer)
+        print("080 pack buffer:------", type(res) , res)
+        buffer = buffer.encode('utf-8')
+        # buffer = bytearray.fromhex(buffer).hex()
+        print("090 pack encode buffer:------",type(buffer) ,  buffer)
+        res = ":".join("{:02x}".format(i) for i in buffer)
+        print("095 pack encode buffer:------",type(res) ,  res)
         self.send(connect.pack().encode())
 
 
@@ -382,8 +397,8 @@ class Client:
         self.sub_rc=""
         subscribe = MQTTSN.Subscribes()
         subscribe.MsgId = self.__nextMsgid()
+        print("subscribe 010",subscribe)
         if type(topic) is str:
-            #print("topic is string  ",topic)
             subscribe.TopicName = topic
             if len(topic) > 2:
                 subscribe.Flags.TopicIdType = MQTTSN.TOPIC_NORMAL
@@ -393,6 +408,7 @@ class Client:
             subscribe.TopicId = topic # should be int
             subscribe.Flags.TopicIdType = MQTTSN.TOPIC_PREDEFINED
         subscribe.Flags.QoS = qos
+        print("subscribe 020",subscribe)
         self.send(subscribe.pack().encode())
         if self.__receiver:
           self.__receiver.lookfor(MQTTSN.SUBACK)

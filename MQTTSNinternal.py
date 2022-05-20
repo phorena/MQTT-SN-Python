@@ -37,7 +37,7 @@ class Receivers:
     self.pubrec = MQTTSN.Pubrecs()
     self.pubrel = MQTTSN.Pubrels()
     self.pubcomp = MQTTSN.Pubcomps()
-    self.debug =False
+    self.debug =True
     self.logging = False
 
   def lookfor(self, msgType):
@@ -79,7 +79,7 @@ class Receivers:
     packet = None
     try:
       packet, address = MQTTSN.unpackPacket(MQTTSN.getPacket(self.socket))
-      #print("\nReceived packet data =",packet,"\n")
+      print("\nReceived packet data =",packet,"\n")
     except Exception as e:
       if sys.exc_info()[0] != socket.timeout:
         print("getting packet unexpected exception", sys.exc_info())
@@ -89,7 +89,7 @@ class Receivers:
       return
     elif self.debug or self.logging:
       print("\nReceived packet data =",packet,"\n")
-      #print("address =",address)
+      print("address =",address)
 
     self.client.inMsgTime=time.time()
     if self.observe == packet.mh.MsgType:
@@ -189,7 +189,8 @@ class Receivers:
           if callback.on_message(self.client,TopicId,Topicname,data, 1,
                            packet.Flags.Retain, packet.MsgId):
             self.puback.MsgId = packet.MsgId
-            self.socket.send(self.puback.pack().encode())
+            # * PUBACK
+            # self.socket.send(self.puback.pack().encode())
       elif packet.Flags.QoS == 2:
         self.inMsgs[packet.MsgId] = packet
         self.pubrec.MsgId = packet.MsgId

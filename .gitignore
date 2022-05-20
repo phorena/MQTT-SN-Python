@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# vim backup
-*.nu~
+.*
+!.gitignore
 
+out
+out*
 # C extensions
 *.so
 

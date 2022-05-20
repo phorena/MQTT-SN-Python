@@ -52,7 +52,7 @@ print ("threads ",threading.activeCount())
 print("connecting ",host)
 client.connected_flag=False
 client.set_will("disconnect sub0", "now", 0, False)
-client.connect(host,port,duration=10, will=True)
+client.connect(host,port,duration=10, cleansession=True, will=False)
 
 client.lookfor(MQTTSN.CONNACK)
 try:

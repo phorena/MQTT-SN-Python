@@ -20,7 +20,8 @@
 
 import struct
 import time
-debug=False
+import binascii
+debug=True
 logging=False
 # Message types
 ADVERTISE, SEARCHGW, GWINFO, reserved, \
@@ -48,6 +49,10 @@ def writeInt16(length):
   length=int(length)
   l1=int(length / 256)
   l2=int(length % 256)
+  print("l1,l2",l1,l2)
+  print("length",length)
+  print(hex(ord(chr(l1))), hex(ord(chr(l2))))
+  print(len(str(chr(l1)+chr(l2))))
   return str(chr(l1)+ chr(l2))
 """
 def writeInt16(length):
@@ -69,7 +74,7 @@ def getPacket(aSocket):
     for i in range(len(buf)):
         s=s+str((buf[i]))+" "
 
-    #print(s)
+    print("getPacket", s)
   if length == 1:
     if buf == "":
       return None
@@ -156,6 +161,7 @@ class MessageHeaders:
 
   def encode(self, length):
     #for ping
+    print("encoding message header", length)
     self.last_msg_sent=time.time()
     self.Length = length + 2
     assert 2 <= self.Length <= 65535
@@ -163,12 +169,20 @@ class MessageHeaders:
       self.packet_buffer = (self.Length).to_bytes(1,"big")+(self.MsgType).to_bytes(1,"big")
 
       buffer=chr(self.Length)
+      print("buffer length 1 ",len(self.packet_buffer))
 
     else:
       self.Length += 2
       buffer = chr(1) + writeInt16(self.Length)
       a=1
       self.packet_buffer =a.to_bytes(1,"big")+(self.Length).to_bytes(2,"big")+(self.MsgType).to_bytes(1,"big")
+      print("buffer length 2 ",len(self.packet_buffer))
+
+    #res = ":".join("{:02x}".format((i)) for i in buffer)
+    res = ":".join("{:02x}".format(ord(i)) for i in buffer)
+    print("070 encode", res)
+    print("0700 buffer len", len(buffer))
+    print("0710 self", len(buffer))
     return buffer
 
   def unpack(self, buffer):
@@ -301,7 +315,6 @@ class GWInfos(Packets):
     return buf
 
 class Connects(Packets):
-
   def __init__(self, buffer = None):
     self.mh = MessageHeaders(CONNECT)
     self.Flags = Flags()
@@ -312,8 +325,14 @@ class Connects(Packets):
       self.unpack(buffer)
 
   def pack(self):
-    print(self)
     buffer = self.Flags.pack() + chr(self.ProtocolId) + writeInt16(self.Duration) + self.ClientId
+    print("pack buffer len: ", len(buffer))
+    res = ":".join("{:02x}".format(ord(i)) for i in buffer)
+    print("pack buffer:", res)
+    zz=self.mh.pack(len(buffer)) + buffer
+    res = ":".join("{:02x}".format(ord(i)) for i in zz)
+    print("00210 pack zz:", res)
+    print("00300 zz type:", type(zz))
     return self.mh.pack(len(buffer)) + buffer
 
   def unpack(self, buffer):
