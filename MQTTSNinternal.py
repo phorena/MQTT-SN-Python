@@ -47,8 +47,8 @@ class Receivers:
       #print("looking for ",str(msgType),"  ",MQTTSN.packetNames[msgType])
 
   def waitfor(self, msgType, msgId=None):
-    m = "waitfor -waiting for " + str(msgType)+ MQTTSN.packetNames[msgType]+"\n"
     if self.debug:
+      m = "waitfor() " + MQTTSN.packetNames[msgType] + " (" + str(msgType)+ ")\n"
       print(m)
     msg = None
     count = 0
@@ -79,7 +79,6 @@ class Receivers:
     packet = None
     try:
       packet, address = MQTTSN.unpackPacket(MQTTSN.getPacket(self.socket))
-      print("\nReceived packet data =",packet,"\n")
     except Exception as e:
       if sys.exc_info()[0] != socket.timeout:
         print("getting packet unexpected exception", sys.exc_info())
@@ -88,8 +87,7 @@ class Receivers:
     if packet == None:
       return
     elif self.debug or self.logging:
-      print("\nReceived packet data =",packet,"\n")
-      print("address =",address)
+      print(address, " Received packet data =",packet,"\n")
 
     self.client.inMsgTime=time.time()
     if self.observe == packet.mh.MsgType:

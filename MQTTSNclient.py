@@ -336,10 +336,13 @@ class Client:
             self.disconnect()
       
 
+    def pack_encode_send(self, msg):
+      if debug:
+        print("send: ", msg.pack().encode(), msg)
+      self.send(msg.pack().encode())
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
         'accepts host,port,duration,cleansession,will flag'
-        print("connect 1000", will)
 
         self.host = host
         self.port = port
@@ -348,27 +351,20 @@ class Client:
         self.duration=duration
         self.cleansession=cleansession
         self.sock.connect((self.host, self.port))
-        print("clean sessions=",self.cleansession)
-        print("local port=", self.sock.getsockname())
-        print("remote port=",self.host, self.port)
+        print("Local Socket Addr: ", self.sock.getsockname())
         connect = MQTTSN.Connects()
         connect.ClientId = self.clientid
         connect.Flags.CleanSession = self.cleansession
         connect.Duration = self.duration
-        print("connect 1000", will)
         connect.Flags.Will=will
-        print(connect)
-        print("length of connect pack=",len(connect.pack()))
-        print("length of connect encode=",len(connect.pack().encode()))
+        print("CONNECT", connect)
         buffer = connect.pack()
         res = ":".join("{:02x}".format(ord(i)) for i in buffer)
-        print("080 pack buffer:------", type(res) , res)
         buffer = buffer.encode('utf-8')
         # buffer = bytearray.fromhex(buffer).hex()
-        print("090 pack encode buffer:------",type(buffer) ,  buffer)
         res = ":".join("{:02x}".format(i) for i in buffer)
-        print("095 pack encode buffer:------",type(res) ,  res)
-        self.send(connect.pack().encode())
+        #self.send(connect.pack().encode())
+        self.pack_encode_send(connect)
 
 
 
@@ -584,14 +580,16 @@ class Client:
       willtopicresponse.flags.QoS=self.will_qos
       willtopicresponse.flags.Retain=self.will_retained
       willtopicresponse.WillTopic=self.will_topic
-      print("will topic requested")
-      self.send(willtopicresponse.pack().encode())
+      # self.send(willtopicresponse.pack().encode())
+      self.pack_encode_send(willtopicresponse)
+
     def willmsg(self,client,msg):
       'Send will message in response to a request from server'
-      print("will message requested")
+      # print("will message requested")
       willmsgresponse =MQTTSN.WillMsgs()
       willmsgresponse.WillMsg=self.will_msg
-      self.send(willmsgresponse.pack().encode())
+      # self.send(willmsgresponse.pack().encode())
+      self.pack_encode_send(willmsgresponse)
     ##
 
 

@@ -48,11 +48,10 @@ client = Client("linh")#change so only needs name
 client.message_arrived_flag=False
 client.registerCallback(MyCallback())
 
-print ("threads ",threading.activeCount()) 
-print("connecting ",host)
+print ("threads ",threading.active_count()) 
 client.connected_flag=False
 client.set_will("disconnect sub0", "now", 0, False)
-client.connect(host,port,duration=10, will=True)
+client.connect(host,port,duration=10, cleansession=True, will=True)
 
 client.lookfor(MQTTSN.CONNACK)
 try:
@@ -64,7 +63,7 @@ except:
   raise SystemExit("no Connection quitting")
   
 client.loop_start() #start loop
-print ("threads ",threading.activeCount()) 
+print ("threads ",threading.active_count()) 
 topic1="mqttsn-test"
 topic1="abc"
 topic0=0
@@ -98,7 +97,7 @@ except KeyboardInterrupt:
     print ("You hit control-c")
 
 
-print ("threads ",threading.activeCount()) 
+print ("threads ",threading.active_count()) 
 
 print("disconnecting")
 client.disconnect()
