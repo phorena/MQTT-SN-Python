@@ -24,6 +24,7 @@ import struct
 import threading
 import random
 import time
+import datetime
 
 ##
 
@@ -338,7 +339,7 @@ class Client:
 
     def pack_encode_send(self, msg):
       if debug:
-        print("send: ", msg.pack().encode(), msg)
+        print(datetime.datetime.now(), "send: ", "{bytes: ", msg.pack().encode(), "}; ", msg)
       self.send(msg.pack().encode())
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
@@ -357,7 +358,7 @@ class Client:
         connect.Flags.CleanSession = self.cleansession
         connect.Duration = self.duration
         connect.Flags.Will=will
-        print("CONNECT", connect)
+        # print("CONNECT", connect)
         buffer = connect.pack()
         res = ":".join("{:02x}".format(ord(i)) for i in buffer)
         buffer = buffer.encode('utf-8')

@@ -86,8 +86,8 @@ class Receivers:
 
     if packet == None:
       return
-    elif self.debug or self.logging:
-      print(address, " Received packet data =",packet,"\n")
+    elif self.debug or self.logging: # XXX exofense
+      print(packet, address)
 
     self.client.inMsgTime=time.time()
     if self.observe == packet.mh.MsgType:

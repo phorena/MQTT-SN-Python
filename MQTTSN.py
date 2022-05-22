@@ -20,7 +20,9 @@
 
 import struct
 import time
+import datetime
 import binascii
+import json
 debug=True
 logging=False
 # Message types
@@ -70,7 +72,7 @@ def getPacket(aSocket):
     for i in range(len(buf)):
         s=s+str((buf[i]))+" "
 
-    print("getPacket", s)
+    # print("getPacket", s)
   if length == 1:
     if buf == "":
       return None
@@ -109,7 +111,8 @@ class Flags:
   
   def __str__(self):
     "return printable representation of our data"
-    return '{DUP '+str(self.DUP)+ \
+    return json.dumps({"DUP":self.DUP, "QoS": self.QoS, "Will": self.Will, "CleanSession": self.CleanSession, "TopicIdType": self.TopicIdType})
+    return "DUP "+str(self.DUP)+ \
            ", QoS "+str(self.QoS)+", Retain "+str(self.Retain) + \
            ", Will "+str(self.Will)+", CleanSession "+str(self.CleanSession) + \
            ", TopicIdType "+str(self.TopicIdType)+"}"
@@ -147,7 +150,8 @@ class MessageHeaders:
 
   def __str__(self):
     "return printable str resentation of our data"
-    return "Length "+str(self.Length) + ", " + packetNames[self.MsgType]
+    # return "Length "+str(self.Length) + ", " + packetNames[self.MsgType]
+    return json.dumps({"Length":self.Length, "MsgType": packetNames[self.MsgType] })
 
   def pack(self, length):
     "pack data into string buffer ready for transmission down socket"
@@ -334,10 +338,16 @@ class Connects(Packets):
     self.ClientId = buffer[pos:]
 
   def __str__(self):
-    buf = str(self.mh) + ", " + str(self.Flags) + \
-    ", ProtocolId " + str(self.ProtocolId) + \
-    ", Duration " + str(self.Duration) + \
-    ", ClientId " + self.ClientId
+    mh = json.loads(str(self.mh))
+    flags = json.loads(str(self.Flags))
+    buf = {
+      "MsgHdr": mh,
+      "Flags": flags,
+      "ProId": self.ProtocolId,
+      "Duration": self.Duration,
+      "ClientId": self.ClientId
+    }
+    buf = json.dumps(buf)
     return buf
 
   def __eq__(self, packet):
@@ -369,7 +379,14 @@ class Connacks(Packets):
     self.ReturnCode = (buffer[pos])
 
   def __str__(self):
-    return str(self.mh)+", ReturnCode "+str(self.ReturnCode)
+    mh = json.loads(str(self.mh))
+    buf = {
+      "MsgHdr": mh,
+      "ReturnCode": self.ReturnCode
+    }
+    buf = json.dumps(buf)
+    return buf
+    # return str(self.mh)+", ReturnCode "+str(self.ReturnCode)
 
   def __eq__(self, packet):
     return Packets.__eq__(self, packet) and \
@@ -408,7 +425,16 @@ class WillTopics(Packets):
     self.WillTopic = buffer[pos:self.mh.Length]
 
   def __str__(self):
-    return str(self.mh)+", Flags "+str(self.flags)+", WillTopic "+self.WillTopic
+    mh = json.loads(str(self.mh))
+    flags = json.loads(str(self.flags))
+    buf = {
+      "MsgHdr": mh,
+      "Flags": flags,
+      "WillTopic": self.WillTopic
+    }
+    buf = json.dumps(buf)
+    return buf
+    # return str(self.mh)+", Flags "+str(self.flags)+", WillTopic "+self.WillTopic
 
   def __eq__(self, packet):
     return Packets.__eq__(self, packet) and \
@@ -444,7 +470,14 @@ class WillMsgs(Packets):
     self.WillMsg = buffer[pos:self.mh.Length]
 
   def __str__(self):
-    return str(self.mh)+", WillMsg "+self.WillMsg
+    mh = json.loads(str(self.mh))
+    buf = {
+      "MsgHdr": mh,
+      "WillMsg": self.WillMsg
+    }
+    buf = json.dumps(buf)
+    return buf
+    # return str(self.mh)+", WillMsg "+self.WillMsg
 
   def __eq__(self, packet):
     return Packets.__eq__(self, packet) and \
@@ -709,6 +742,25 @@ class Subscribes(Packets):
       self.TopicName = buffer[pos:pos+2]
 
   def __str__(self):
+    mh = json.loads(str(self.mh))
+    Flags = json.loads(str(self.Flags))
+    if self.Flags.TopicIdType == 0:
+      key = "TopicName"
+      val = self.TopicName
+    elif self.Flags.TopicIdType == 1:
+      key = "TopicId"
+      val = str(self.TopicId)
+    elif self.Flags.TopicIdType == 2:
+      key = "TopicId"
+      val = self.TopicId
+    buf = {
+      "MsgHdr": mh,
+      "Flags": Flags,
+      "MsgId": self.MsgId,
+      key: val
+    }
+    buf = json.dumps(buf)
+    return buf
     buffer = str(self.mh)+", Flags "+str(self.Flags)+", MsgId "+str(self.MsgId)
     if self.Flags.TopicIdType == 0:
       buffer += ", TopicName "+self.TopicName
@@ -1030,11 +1082,13 @@ objects = [Advertises, SearchGWs, GWInfos, None,
 def unpackPacket(buff_add):
 #extracts message type from in coming packet and creates a packet object
   buffer, address = buff_add
-  if debug or logging:
-    print(address, " buffer is ",buffer)
+  if debug or logging: # XXX exofense
+    # print(address, " buffer is ",buffer)
+    print(datetime.datetime.now(), "recv: ", "{bytes: ", buffer, "};  ", end='')
   if MessageType(buffer) != None:
     if debug:
-      print(" objects ",objects[MessageType(buffer)], " ",MessageType(buffer))
+      #print(" objects ",objects[MessageType(buffer)], " ",MessageType(buffer))
+      pass
     packet = objects[MessageType(buffer)]() #create instance
     packet.unpack(buffer)
   else:
