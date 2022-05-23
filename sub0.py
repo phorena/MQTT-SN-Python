@@ -55,6 +55,13 @@ def test_connect(cleansession, will, duration, wait1=5, wait2=2):
   %%%%%%%%%%%%%%%%%%%%%%%%"""
   print(mystring)
 
+  parameters = {
+    "duration": duration,
+    "wait1": wait1,
+    "wait2": wait2,
+
+  }
+  print(parameters)
   client = Client("linh")#change so only needs name
   client.message_arrived_flag=False
   client.registerCallback(MyCallback())

@@ -964,10 +964,24 @@ class Disconnects(Packets):
       self.Duration = readInt16(buffer[pos:])
 
   def __str__(self):
-    buf = str(self.mh)
+    mh = json.loads(str(self.mh))
     if self.Duration:
-      buf += ", Duration "+str(self.Duration)
+      buf = {
+        "MsgHdr": mh,
+        "Duration": self.Duration
+      }
+    else:
+      buf = {
+        "MsgHdr": mh,
+      }
+
+    buf = json.dumps(buf)
     return buf
+
+    # buf = str(self.mh)
+    # if self.Duration:
+    #   buf += ", Duration "+str(self.Duration)
+    # return buf
 
   def __eq__(self, packet):
     return Packets.__eq__(self, packet) and \
