@@ -30,7 +30,8 @@ import datetime
 
 import MQTTSN,socket, time, MQTTSNinternal, _thread, sys,types
 #, struct
-debug=True
+debug=False
+exo_debug = True
 logging=False
 MQTTSNinternal.debug=False
       
@@ -338,8 +339,11 @@ class Client:
       
 
     def pack_encode_send(self, msg):
-      if debug:
-        print(datetime.datetime.now(), "send: ", "{bytes: ", msg.pack().encode(), "}; ", msg)
+      if exo_debug: # XXX Exofense
+        
+        # 38;2;r;g;b helps to set RGB color. 5;86;243 are set after 38;2;
+        send = '\x1b[38;2;255;5;23m' + 'send' + '\x1b[0m'
+        print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg)
       self.send(msg.pack().encode())
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
@@ -510,7 +514,8 @@ class Client:
 
     def disconnect(self,duration=None):
         disconnect = MQTTSN.Disconnects()
-        self.send(disconnect.pack().encode("utf-8"))
+        # self.send(disconnect.pack().encode("utf-8"))
+        self.pack_encode_send(disconnect)
         self.connected_flag=False
 
 
@@ -544,16 +549,14 @@ class Client:
         assert self.__receiver.inMsgs == {}
         #assert self.__receiver.outMsgs == {}
         #self.__receiver = None
-        print("stopping")
         self.loop_stop_gw()
-        print("flags ",self.running_loop,"  ", self.multicast_flag)
     def loop(self,interval=.001):
         self.interval=interval #not used
         if self.running_loop: #already created external so return
           return
         self.__receiver.receive(self.callback)
         
-    def set_will(self,will_msg,will_topic,will_qos=0,will_retained=False):
+    def set_will(self,will_topic,will_msg,will_qos=0,will_retained=False):
       'paramters: will message,topic,qos,retained flag'
       self.will_topic=will_topic
       self.will_msg=will_msg

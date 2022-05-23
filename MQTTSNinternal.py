@@ -37,7 +37,8 @@ class Receivers:
     self.pubrec = MQTTSN.Pubrecs()
     self.pubrel = MQTTSN.Pubrels()
     self.pubcomp = MQTTSN.Pubcomps()
-    self.debug =True
+    self.debug =False
+    self.exo_debug =True
     self.logging = False
 
   def lookfor(self, msgType):
@@ -86,7 +87,7 @@ class Receivers:
 
     if packet == None:
       return
-    elif self.debug or self.logging: # XXX exofense
+    elif self.debug or self.logging or self.exo_debug: # XXX Exofense
       print(packet, address)
 
     self.client.inMsgTime=time.time()
@@ -230,7 +231,6 @@ class Receivers:
         if not self.client.running_loop and not \
           self.client.multicast_flag: #stops thread
           self.socket.close()
-          print("closed socket")
           break
     except Exception as e:
         print("A unexpected exception", e)

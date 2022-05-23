@@ -23,7 +23,8 @@ import time
 import datetime
 import binascii
 import json
-debug=True
+debug=False
+exo_debug=True
 logging=False
 # Message types
 ADVERTISE, SEARCHGW, GWINFO, reserved, \
@@ -1082,9 +1083,11 @@ objects = [Advertises, SearchGWs, GWInfos, None,
 def unpackPacket(buff_add):
 #extracts message type from in coming packet and creates a packet object
   buffer, address = buff_add
-  if debug or logging: # XXX exofense
+  if debug or logging or exo_debug: # XXX Exofense
     # print(address, " buffer is ",buffer)
-    print(datetime.datetime.now(), "recv: ", "{bytes: ", buffer, "};  ", end='')
+    # 38;2;r;g;b helps to set RGB color. 5;86;243 are set after 38;2;
+    recv = '\x1b[38;2;5;245;43m' + 'recv' + '\x1b[0m'
+    print(datetime.datetime.now(), recv, "{bytes: ", buffer, "};  ", end='')
   if MessageType(buffer) != None:
     if debug:
       #print(" objects ",objects[MessageType(buffer)], " ",MessageType(buffer))

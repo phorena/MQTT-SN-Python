@@ -38,68 +38,63 @@ def empty_queue(delay=0):
       time.sleep(delay)
 ########
 
+def test_connect(cleansession, will, duration, wait1=5, wait2=2):
+
+  mystring = f"""
+  %%%%%%%%%%%%%%%%%%%%%%%%
+  test_connect
+  1. Connect with: 
+      a. cleansession: {cleansession}
+      b. will: {will}
+      c. duration: {duration}
+  2. Wait for ConnAck
+  3. Run loop_start()
+  4. Wait {wait1} sec
+  5. Disconnect()
+  6. Wait {wait2} sec
+  %%%%%%%%%%%%%%%%%%%%%%%%"""
+  print(mystring)
+
+  client = Client("linh")#change so only needs name
+  client.message_arrived_flag=False
+  client.registerCallback(MyCallback())
+  client.connected_flag=False
+  client.set_will("sub0", "disconnect now", 0, False)
+
+  client.connect(host,port,duration, cleansession, will)
+  client.lookfor(MQTTSN.CONNACK)
+  try:
+    if client.waitfor(MQTTSN.CONNACK)==None:
+        print("connection failed")
+        raise SystemExit("no Connection quitting")
+  except:
+    print("connection failed")
+    raise SystemExit("no Connection quitting")
+
+  client.loop_start() #start loop
+  time.sleep(wait1)
+
+  client.disconnect()
+
+  time.sleep(wait2)
+  client.loop_stop() #stop loop
+  assert client.connected_flag == False
+  time.sleep(disconnect_time)
+  
+
 #if __name__ == "__main__":
 host="127.0.0.1"
 port=60000
 #m_port=1885 #port gateways advertises on
 #m_group="225.0.18.83" #IP gateways advertises on
 
-client = Client("linh")#change so only needs name
-client.message_arrived_flag=False
-client.registerCallback(MyCallback())
+conn_time = 3
+disconnect_time = 5
 
-print ("threads ",threading.active_count()) 
-client.connected_flag=False
-client.set_will("disconnect sub0", "now", 0, False)
-client.connect(host,port,duration=10, cleansession=True, will=True)
+test_connect(cleansession=True, will=False, duration=10)
+test_connect(cleansession=True, will=True, duration=10)
+test_connect(cleansession=False, will=True, duration=10)
+test_connect(cleansession=False, will=False, duration=10)
 
-client.lookfor(MQTTSN.CONNACK)
-try:
-  if client.waitfor(MQTTSN.CONNACK)==None:
-      print("connection failed")
-      raise SystemExit("no Connection quitting")
-except:
-  print("connection failed")
-  raise SystemExit("no Connection quitting")
-  
-client.loop_start() #start loop
-print ("threads ",threading.active_count()) 
-topic1="mqttsn-test"
-topic1="abc"
-topic0=0
-topic1=127
-print("topic for topic1 is", topic1)
-print("connected now subscribing")
-while True:
-#  topic0_id,rc = client.subscribe(topic0,0)
-#  if rc==None:
-#    print("subscribe failed")
-#    raise SystemExit("Subscription failed quitting")
-#  if rc==0:
-#    print("subscribed ok to ",topic0)
-#    print("topic0_id",topic0_id)
-
-  topic1_id,rc = client.subscribe(topic1,0)
-  if rc==None:
-    print("subscribe failed")
-    raise SystemExit("Subscription failed quitting")
-  if rc==0:
-    print("subscribed ok to ",topic1)
-    print("topic1_id",topic1_id)
-    break
-
-try:
-  while True:
-    time.sleep(1)
-    empty_queue(0)
-    pass
-except KeyboardInterrupt:
-    print ("You hit control-c")
-
-
-print ("threads ",threading.active_count()) 
-
-print("disconnecting")
-client.disconnect()
-
-client.loop_stop()
+# Connection timeout because wait1=15 while duration=10
+test_connect(cleansession=True, will=False, duration=10, wait1=15)
