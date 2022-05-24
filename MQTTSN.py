@@ -762,14 +762,14 @@ class Subscribes(Packets):
     }
     buf = json.dumps(buf)
     return buf
-    buffer = str(self.mh)+", Flags "+str(self.Flags)+", MsgId "+str(self.MsgId)
-    if self.Flags.TopicIdType == 0:
-      buffer += ", TopicName "+self.TopicName
-    elif self.Flags.TopicIdType == 1:
-      buffer += ", TopicId "+str(self.TopicId)
-    elif self.Flags.TopicIdType == 2:
-      buffer += ", TopicId "+self.TopicId
-    return buffer
+    # buffer = str(self.mh)+", Flags "+str(self.Flags)+", MsgId "+str(self.MsgId)
+    # if self.Flags.TopicIdType == 0:
+    #   buffer += ", TopicName "+self.TopicName
+    # elif self.Flags.TopicIdType == 1:
+    #   buffer += ", TopicId "+str(self.TopicId)
+    # elif self.Flags.TopicIdType == 2:
+    #   buffer += ", TopicId "+self.TopicId
+    # return buffer
 
   def __eq__(self, packet):
     if self.Flags.TopicIdType == 0:

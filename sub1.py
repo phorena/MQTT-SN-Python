@@ -67,8 +67,6 @@ client.loop_start() #start loop
 print ("threads ",threading.activeCount()) 
 topic1="mqttsn-test"
 topic1="abc"
-print("topic for topic1 is", topic1)
-print("connected now subscribing")
 while True:
   topic1_id,rc = client.subscribe(topic1, 1)
   if rc==None:

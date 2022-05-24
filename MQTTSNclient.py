@@ -61,8 +61,8 @@ class Callback:
       client.connected_flag=True
     else:
       client.bad_connect_flag=True
-  def on_disconnect(self,client,cause):
 
+  def on_disconnect(self,client,cause):
     if debug:
       print("default connection Lost", cause)
     self.events.append("disconnected")
@@ -398,7 +398,6 @@ class Client:
         self.sub_rc=""
         subscribe = MQTTSN.Subscribes()
         subscribe.MsgId = self.__nextMsgid()
-        print("subscribe 010",subscribe)
         if type(topic) is str:
             subscribe.TopicName = topic
             if len(topic) > 2:
@@ -409,12 +408,11 @@ class Client:
             subscribe.TopicId = topic # should be int
             subscribe.Flags.TopicIdType = MQTTSN.TOPIC_PREDEFINED
         subscribe.Flags.QoS = qos
-        print("subscribe 020",subscribe)
-        self.send(subscribe.pack().encode())
+        # self.send(subscribe.pack().encode())
+        self.pack_encode_send(subscribe)
         if self.__receiver:
           self.__receiver.lookfor(MQTTSN.SUBACK)
           msg=self.waitfor(MQTTSN.SUBACK, subscribe.MsgId)
-          print("msg", msg)
         if msg:
           #if using shortname then return the name not topic id as it is always=0
           if subscribe.Flags.TopicIdType == MQTTSN.TOPIC_SHORTNAME:
