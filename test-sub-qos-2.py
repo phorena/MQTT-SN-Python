@@ -45,4 +45,4 @@ port=60000
 #m_port=1885 #port gateways advertises on
 #m_group="225.0.18.83" #IP gateways advertises on
 
-test_subscribe("hello", qos=0)
+test_subscribe("hello", qos=2)
