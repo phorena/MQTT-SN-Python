@@ -87,8 +87,12 @@ class Receivers:
 
     if packet == None:
       return
-    elif self.debug or self.logging or self.exo_debug: # XXX Exofense
-      print(packet, address)
+    elif self.debug or self.logging or self.exo_debug: # XXX Exofense RECV
+      # add color to the message type string
+      msg_type_str = MQTTSN.packetNames[packet.mh.MsgType]
+      msg_type_str_2 = '\x1b[38;2;15;255;43m' + msg_type_str + '\x1b[0m'
+      msg_print = str(packet).replace(msg_type_str, msg_type_str_2)
+      print(msg_print, address)
 
     self.client.inMsgTime=time.time()
     if self.observe == packet.mh.MsgType:

@@ -339,12 +339,16 @@ class Client:
       
 
     def pack_encode_send(self, msg):
-      if exo_debug: # XXX Exofense
-        
-        # 38;2;r;g;b helps to set RGB color. 5;86;243 are set after 38;2;
-        send = '\x1b[38;2;255;5;23m' + 'send' + '\x1b[0m'
-        print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg)
       self.send(msg.pack().encode())
+      if exo_debug: # XXX Exofense send
+        # add color to the send string
+        send = '\x1b[38;2;255;240;20m' + 'SEND' + '\x1b[0m'
+        # add color to the message type string
+        msg_type_str = MQTTSN.packetNames[msg.mh.MsgType]
+        msg_type_str_2 = '\x1b[38;2;255;240;20m' + msg_type_str + '\x1b[0m'
+        msg_print = str(msg).replace(msg_type_str, msg_type_str_2)
+
+        print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg_print)
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
         'accepts host,port,duration,cleansession,will flag'
