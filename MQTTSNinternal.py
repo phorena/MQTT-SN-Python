@@ -17,6 +17,21 @@
 """
 
 import MQTTSN, time, sys, socket, traceback
+# from MQTTSNclient import print_send
+import datetime
+
+exo_debug = True
+
+def print_send(msg):
+  if exo_debug: # XXX Exofense send
+    # add color to the send string
+    send = '\x1b[38;2;255;240;20m' + 'SEND' + '\x1b[0m'
+    # add color to the message type string
+    msg_type_str = MQTTSN.packetNames[msg.mh.MsgType]
+    msg_type_str_2 = '\x1b[38;2;255;240;20m' + msg_type_str + '\x1b[0m'
+    msg_print = str(msg).replace(msg_type_str, msg_type_str_2)
+    # print(datetime.datetime.now(), send, msg_print)
+    print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg_print)
 
 
 
@@ -40,6 +55,8 @@ class Receivers:
     self.debug =False
     self.exo_debug =True
     self.logging = False
+
+    self.exo_drop = 3
 
   def lookfor(self, msgType):
     self.observe = msgType
@@ -134,7 +151,11 @@ class Receivers:
     elif packet.mh.MsgType == MQTTSN.PUBREC:
       if packet.MsgId in self.outMsgs:
         self.pubrel.MsgId = packet.MsgId
-        self.socket.send(self.pubrel.pack())
+        if self.exo_drop > 0:
+          self.exo_drop -= 1
+          return
+        print_send(self.pubrel)
+        self.socket.send(self.pubrel.pack().encode())
       else:
         raise Exception("PUBREC received for unknown msg id "+ \
                     str(packet.MsgId))
@@ -197,7 +218,9 @@ class Receivers:
       elif packet.Flags.QoS == 2:
         self.inMsgs[packet.MsgId] = packet
         self.pubrec.MsgId = packet.MsgId
+        print("00100", self.pubrec.MsgId)
         self.socket.send(self.pubrec.pack())
+        print("00200", self.pubrec.MsgId)
 
     elif packet.mh.MsgType == MQTTSN.SEARCHGW: ##added by me
         self.client.searchgw(self.client,address,packet)

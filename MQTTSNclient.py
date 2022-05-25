@@ -338,8 +338,21 @@ class Client:
             self.disconnect()
       
 
-    def pack_encode_send(self, msg):
-      self.send(msg.pack().encode())
+    def print_send(self, msg):
+      if exo_debug: # XXX Exofense send
+        # add color to the send string
+        send = '\x1b[38;2;255;240;20m' + 'SEND' + '\x1b[0m'
+        # add color to the message type string
+        msg_type_str = MQTTSN.packetNames[msg.mh.MsgType]
+        msg_type_str_2 = '\x1b[38;2;255;240;20m' + msg_type_str + '\x1b[0m'
+        msg_print = str(msg).replace(msg_type_str, msg_type_str_2)
+        
+
+        # print(datetime.datetime.now(), send, msg_print)
+        print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg_print)
+
+    # publish has a different format than the other packets.
+    def print_publish(self, msg, bytes):
       if exo_debug: # XXX Exofense send
         # add color to the send string
         send = '\x1b[38;2;255;240;20m' + 'SEND' + '\x1b[0m'
@@ -348,7 +361,8 @@ class Client:
         msg_type_str_2 = '\x1b[38;2;255;240;20m' + msg_type_str + '\x1b[0m'
         msg_print = str(msg).replace(msg_type_str, msg_type_str_2)
 
-        print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg_print)
+        # print(datetime.datetime.now(), send, msg_print)
+        print(datetime.datetime.now(), send, "{bytes: ", bytes, "}; ", msg_print)
 
     def connect(self,host="localhost",port=1883,duration=60,cleansession=True,will=False):
         'accepts host,port,duration,cleansession,will flag'
@@ -367,13 +381,13 @@ class Client:
         connect.Duration = self.duration
         connect.Flags.Will=will
         # print("CONNECT", connect)
-        buffer = connect.pack()
-        res = ":".join("{:02x}".format(ord(i)) for i in buffer)
-        buffer = buffer.encode('utf-8')
+        # buffer = connect.pack() # exofense debug code
+        # res = ":".join("{:02x}".format(ord(i)) for i in buffer)
+        # buffer = buffer.encode('utf-8')
         # buffer = bytearray.fromhex(buffer).hex()
-        res = ":".join("{:02x}".format(i) for i in buffer)
-        #self.send(connect.pack().encode())
-        self.pack_encode_send(connect)
+        # res = ":".join("{:02x}".format(i) for i in buffer)
+        self.send(connect.pack().encode())
+        self.print_send(connect)
 
 
 
@@ -412,8 +426,8 @@ class Client:
             subscribe.TopicId = topic # should be int
             subscribe.Flags.TopicIdType = MQTTSN.TOPIC_PREDEFINED
         subscribe.Flags.QoS = qos
-        # self.send(subscribe.pack().encode())
-        self.pack_encode_send(subscribe)
+        self.send(subscribe.pack().encode())
+        self.print_send(subscribe)
         if self.__receiver:
           self.__receiver.lookfor(MQTTSN.SUBACK)
           msg=self.waitfor(MQTTSN.SUBACK, subscribe.MsgId)
@@ -510,14 +524,15 @@ class Client:
 
         publish.Data = payload
         a=publish.pack()
+        self.print_publish(publish, a)
         self.send(a)
         self.__receiver.outMsgs[publish.MsgId] = publish
         return publish.MsgId
 
     def disconnect(self,duration=None):
         disconnect = MQTTSN.Disconnects()
-        # self.send(disconnect.pack().encode("utf-8"))
-        self.pack_encode_send(disconnect)
+        self.send(disconnect.pack().encode("utf-8"))
+        self.print_send(disconnect)
         self.connected_flag=False
 
 
@@ -586,16 +601,16 @@ class Client:
       willtopicresponse.flags.QoS=self.will_qos
       willtopicresponse.flags.Retain=self.will_retained
       willtopicresponse.WillTopic=self.will_topic
-      # self.send(willtopicresponse.pack().encode())
-      self.pack_encode_send(willtopicresponse)
+      self.send(willtopicresponse.pack().encode())
+      self.print_send(willtopicresponse)
 
     def willmsg(self,client,msg):
       'Send will message in response to a request from server'
       # print("will message requested")
       willmsgresponse =MQTTSN.WillMsgs()
       willmsgresponse.WillMsg=self.will_msg
-      # self.send(willmsgresponse.pack().encode())
-      self.pack_encode_send(willmsgresponse)
+      self.send(willmsgresponse.pack().encode())
+      self.print_send(willmsgresponse)
     ##
 
 

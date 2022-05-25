@@ -61,13 +61,13 @@ topic1=100
 
 msg="aaaaa"
 time.sleep(1)
-print("topic id=",topic1)
+# print("topic id=",topic1)
 # client.publish(topic1,msg)
-client.publish(topic1,msg, 0, True)
-print("disconnecting")
+client.publish(topic1,msg, qos=2, retained=True)
+# print("disconnecting")
+time.sleep(200) # wait for message to be received and replied with pub_ack
 client.disconnect()
-time.sleep(2)
-print ("threads ",threading.activeCount()) 
+# print ("threads ",threading.activeCount()) 
 empty_queue(4)
 client.loop_stop()
 
