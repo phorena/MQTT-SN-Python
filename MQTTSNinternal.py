@@ -56,7 +56,7 @@ class Receivers:
     self.exo_debug =True
     self.logging = False
 
-    self.exo_drop = 3
+    self.exo_drop = 300 # high drop number will cause broker timeout.
 
   def lookfor(self, msgType):
     self.observe = msgType

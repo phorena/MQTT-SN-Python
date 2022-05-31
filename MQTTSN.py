@@ -48,19 +48,6 @@ packetNames = [ "ADVERTISE", "SEARCHGW", "GWINFO", "reserved", \
 TopicIdType_Names = ["NORMAL", "PREDEFINED", "SHORT_NAME"]
 TOPIC_NORMAL, TOPIC_PREDEFINED, TOPIC_SHORTNAME = list(range(3))
 
-def print_send(self, msg):
-  if exo_debug: # XXX Exofense send
-    # add color to the send string
-    send = '\x1b[38;2;255;240;20m' + 'SEND' + '\x1b[0m'
-    # add color to the message type string
-    msg_type_str = MQTTSN.packetNames[msg.mh.MsgType]
-    msg_type_str_2 = '\x1b[38;2;255;240;20m' + msg_type_str + '\x1b[0m'
-    msg_print = str(msg).replace(msg_type_str, msg_type_str_2)
-    
-
-    # print(datetime.datetime.now(), send, msg_print)
-    print(datetime.datetime.now(), send, "{bytes: ", msg.pack().encode(), "}; ", msg_print)
-
 def writeInt16(length):
   length=int(length)
   l1=int(length / 256)
@@ -929,6 +916,7 @@ class Pingreqs(Packets):
   def pack(self):
     if self.ClientId:
       buf = self.mh.pack(len(self.ClientId)) + self.ClientId
+      buf = self.mh.pack(0)
     else:
       buf = self.mh.pack(0)
     return buf

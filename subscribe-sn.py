@@ -81,6 +81,7 @@ while True:
 
 try:
   while True:
+    client.pingreq()
     time.sleep(1)
     empty_queue(0)
     pass
