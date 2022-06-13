@@ -13,7 +13,6 @@ import time
 import sys
 # sys.path.append('c:/python34/steve/mqttsclient/client')
 print(sys.version_info)
-
 from MQTTSNclient import Callback
 from MQTTSNclient import Client
 from MQTTSNclient import publish
