@@ -185,7 +185,7 @@ class Client:
 
       cert_path = path.join(path.abspath(path.dirname(__file__)), "certs")
       self.dtls_socket = ssl.wrap_socket(socket.socket(AF_INET, SOCK_DGRAM), cert_reqs=ssl.CERT_NONE, ca_certs=path.join(cert_path, "ca-cert.pem"))
-      self.dtls_socket.connect(('127.0.0.1', 4444))
+      self.dtls_socket.connect(('127.0.0.1', 63000))
 
       #self.registerCallback(Callback())
     ##added by me create gwifo for sending
