@@ -28,12 +28,12 @@ import datetime
 
 
 # DTLS library
-from os import path
-import ssl
-from socket import socket, AF_INET, SOCK_DGRAM
-from logging import basicConfig, DEBUG
-basicConfig(level=DEBUG)  # set now for dtls import code
-from dtls import do_patch
+#from os import path
+#import ssl
+#from socket import socket, AF_INET, SOCK_DGRAM
+#from logging import basicConfig, DEBUG
+#basicConfig(level=DEBUG)  # set now for dtls import code
+#from dtls import do_patch
 
 ##
 
@@ -181,11 +181,11 @@ class Client:
       self.will_msg=""
       self.multicast_group=""
       self.multicast_port=""
-      do_patch()
+      # do_patch() EXO
 
-      cert_path = path.join(path.abspath(path.dirname(__file__)), "certs")
-      self.dtls_socket = ssl.wrap_socket(socket.socket(AF_INET, SOCK_DGRAM), cert_reqs=ssl.CERT_NONE, ca_certs=path.join(cert_path, "ca-cert.pem"))
-      self.dtls_socket.connect(('127.0.0.1', 63000))
+      # cert_path = path.join(path.abspath(path.dirname(__file__)), "certs")
+      # self.dtls_socket = ssl.wrap_socket(socket.socket(AF_INET, SOCK_DGRAM), cert_reqs=ssl.CERT_NONE, ca_certs=path.join(cert_path, "ca-cert.pem"))
+      # self.dtls_socket.connect(('127.0.0.1', 63000))
 
       #self.registerCallback(Callback())
     ##added by me create gwifo for sending
@@ -338,7 +338,7 @@ class Client:
       self.outMsgTime=time.time()
       print("*****", data)
       self.sock.send(data)
-      self.dtls_socket.send(data)
+      # self.dtls_socket.send(data)
       #sends data on socket
     def check_ping(self):
       if not self.connected_flag:
