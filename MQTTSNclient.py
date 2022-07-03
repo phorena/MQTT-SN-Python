@@ -181,6 +181,7 @@ class Client:
       self.will_msg=""
       self.multicast_group=""
       self.multicast_port=""
+      self.dtls_socket = None
       # do_patch() EXO
 
       # cert_path = path.join(path.abspath(path.dirname(__file__)), "certs")
@@ -189,6 +190,10 @@ class Client:
 
       #self.registerCallback(Callback())
     ##added by me create gwifo for sending
+    def set_dtls_socket (self, dtls_socket):
+        self.dtls_socket = dtls_socket
+        self.__receiver.dtls_socket = dtls_socket
+
     def searchgw(self,client,address,packet):
       'need to send gw info packet'
       now=time.time()
@@ -337,8 +342,10 @@ class Client:
     def send(self,data):
       self.outMsgTime=time.time()
       print("*****", data)
-      self.sock.send(data)
-      # self.dtls_socket.send(data)
+      if self.dtls_socket:
+        self.dtls_socket.send(data)
+      else:
+        self.sock.send(data)
       #sends data on socket
     def check_ping(self):
       if not self.connected_flag:

@@ -60,10 +60,21 @@ def writeInt16(length):
 def readInt16(buf):
   return (buf[0])*256 + (buf[1])
 
-def getPacket(aSocket):
+def getPacket(aSocket, dtls_socket=None):
   "receive the next packet"
-  buf, address = aSocket.recvfrom(65535) # get the first byte fixed header
+  if dtls_socket:
+    buf = dtls_socket.recv().decode()
+    address = dtls_socket.getpeername()
+    print("address: ", address)
+    print("buf: ", buf[0])
+    print("len: ", len(buf))
+    # buf = [c for c in buf]
+    buf = str.encode(buf)
+    print(buf)
+  else: 
+    buf, address = aSocket.recvfrom(65535) # get the first byte fixed header
   #buf=buf.decode("utf8","ignore")
+  print("#### type:", type(buf))
   if buf == "":
     return None
   
@@ -80,6 +91,7 @@ def getPacket(aSocket):
     length = readInt16(buf[1:])
     #print(type(length),"  ",type(buf[0]))
     
+  print("address:", address)
   return buf, address
 
 def MessageType(buf):
