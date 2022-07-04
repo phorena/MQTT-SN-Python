@@ -30,7 +30,7 @@ do_patch()
 
 cert_path = path.join(path.abspath(path.dirname(__file__)), "certs")
 s = ssl.wrap_socket(socket(AF_INET, SOCK_DGRAM), cert_reqs=ssl.CERT_NONE, ca_certs=path.join(cert_path, "ca-cert.pem"))
-s.connect(('127.0.0.1', 4444))
+s.connect(('127.0.0.1', 61003))
 
 message_q=queue.Queue()
 
