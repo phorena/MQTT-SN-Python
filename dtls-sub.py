@@ -60,14 +60,9 @@ port=60000
 
 client = Client("linh")#change so only needs name
 
-
-
 client.set_dtls_socket(s)
 print(s.getpeername())
 print(s.getsockname())
-
-
-
 
 client.message_arrived_flag=False
 client.registerCallback(MyCallback())
@@ -89,10 +84,10 @@ except:
   
 client.loop_start() #start loop
 print ("threads ",threading.activeCount()) 
-topic1="mqttsn-test"
-topic1="abc"
+topic1=0
 print("topic for topic1 is", topic1)
 print("connected now subscribing")
+
 while True:
   topic1_id,rc = client.subscribe(topic1, 0)
   if rc==None:
@@ -103,13 +98,11 @@ while True:
     print("topic1_id",topic1_id)
     break
 
-topic1=0
-msg="aaaaa"
-# print("disconnecting")
 try:
   while True:
-    client.publish(topic1, msg, qos=1, retained=False)
-    time.sleep(3)
+    client.pingreq()
+    time.sleep(30)
+    empty_queue(0)
     pass
 except KeyboardInterrupt:
     print ("You hit control-c")
