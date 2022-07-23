@@ -39,7 +39,7 @@ class MyCallback(Callback):
     m= "d-p-Arrived" +" topic  " +str(TopicId)+ "message " +\
        str(payload) +"  qos= " +str(qos) +" ret= " +str(retained)\
        +"  msgid= " + str(msgid)
-    #print("got the message ",payload)
+    print("got the message ",payload)
     message_q.put(payload)
     return True
 
@@ -84,7 +84,7 @@ except:
   
 client.loop_start() #start loop
 print ("threads ",threading.activeCount()) 
-topic1=0
+topic1=3345
 print("topic for topic1 is", topic1)
 print("connected now subscribing")
 

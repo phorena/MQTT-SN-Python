@@ -103,14 +103,20 @@ while True:
     print("topic1_id",topic1_id)
     break
 
-topic1=0
-msg="aaaaa"
+topic1=3345
+
+msg_cnt = 1
+
 # print("disconnecting")
 try:
   while True:
-    client.publish(topic1, msg, qos=1, retained=False)
+    # client.publish(topic1, msg, qos=2, retained=False)
+    msg_cnt += 1
+    msg="aaaaa" + str(msg_cnt)
+    client.publish(topic1, msg, qos=1, retained=True)
     time.sleep(3)
     pass
+
 except KeyboardInterrupt:
     print ("You hit control-c")
 

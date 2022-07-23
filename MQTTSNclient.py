@@ -510,6 +510,7 @@ class Client:
         publish = MQTTSN.Publishes()
         publish.Flags.QoS = qos
         publish.Flags.Retain = retained
+        print("pulblish retain is ",retained)
         self.puback_flag=False #reset flag
         if isinstance(payload, str):
           local_payload = payload.encode('utf-8')
